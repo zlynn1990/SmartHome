@@ -86,7 +86,7 @@ namespace SmartHome.Orchestration
                     new RuleCondition
                     {
                         Type = RuleConditionType.NoMotionDetection,
-                        DurationInMins = 1,
+                        DurationInSeconds = 30,
                         RoomId = "4"
                     },
                     new RuleCondition
@@ -106,7 +106,7 @@ namespace SmartHome.Orchestration
                 }
             };
 
-            var bedroomRule = new Rule
+            var bedroomOn = new Rule
             {
                 Id = "1",
                 Name = "Bedroom Light On",
@@ -134,6 +134,35 @@ namespace SmartHome.Orchestration
                 }
             };
 
+            var bedroomOff = new Rule
+            {
+                Id = "1",
+                Name = "Bedroom Light Off",
+                Conditions = new[]
+                {
+                    new RuleCondition
+                    {
+                        Type = RuleConditionType.NoMotionDetection,
+                        DurationInSeconds = 30,
+                        RoomId = "3"
+                    },
+                    new RuleCondition
+                    {
+                        Type = RuleConditionType.LightState,
+                        LightState = LightState.LightsOn,
+                        RoomId = "3"
+                    }
+                },
+                Actions = new[]
+                {
+                    new RuleAction
+                    {
+                        RoomIds = new[] {"3"},
+                        LightState = LightState.LightsOff
+                    }
+                }
+            };
+
             var smartHub = new SmartHub
             {
                 Environment = EnvironmentConfig.Load(),
@@ -153,7 +182,7 @@ namespace SmartHome.Orchestration
 
             Console.WriteLine("Starting rule engine loop");
 
-            var ruleProcessor = new RuleProcessor(new[] { entryRule, laundryOn, laundryOff, bedroomRule }, smartHub);
+            var ruleProcessor = new RuleProcessor(new[] { entryRule, laundryOn, laundryOff, bedroomOn, bedroomOff }, smartHub);
             ruleProcessor.Run();
 
             Console.ReadLine();

@@ -26,7 +26,7 @@ namespace SmartHome.Orchestration
 
         public RuleTimeRange TimeRange { get; set; }
 
-        public int DurationInMins { get; set; }
+        public int DurationInSeconds { get; set; }
 
         public string RoomId { get; set; }
 

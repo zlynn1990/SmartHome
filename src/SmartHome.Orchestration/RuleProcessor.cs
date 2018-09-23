@@ -123,7 +123,7 @@ namespace SmartHome.Orchestration
                             case RuleConditionType.NoMotionDetection:
                                 TimeSpan timeSinceActivity = DateTime.Now - _activityMap[condition.RoomId];
 
-                                if (timeSinceActivity.TotalMinutes > condition.DurationInMins)
+                                if (timeSinceActivity.TotalSeconds > condition.DurationInSeconds)
                                 {
                                     satisfiedRules++;
                                 }
