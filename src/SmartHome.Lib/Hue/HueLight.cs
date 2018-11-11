@@ -8,9 +8,10 @@ namespace SmartHome.Lib.Hue
         public string Id { get; set; }
 
         public string Name { get; set; }
-        public string Type { get; set; }
 
         public DateTime LastUpdate { get; set; }
+
+        public LightType Type { get; set; }
         public LightState State { get; set; }
     }
 }

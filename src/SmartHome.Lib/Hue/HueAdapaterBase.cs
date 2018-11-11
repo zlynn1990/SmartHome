@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
@@ -44,6 +45,8 @@ namespace SmartHome.Lib.Hue
             public string BridgeIp { get; set; }
 
             public string BridgeUser { get; set; }
+
+            public Dictionary<string, string> LightMap { get; set; }
         }
     }
 }

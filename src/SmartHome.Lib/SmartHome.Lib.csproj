@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\Common\Json\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,6 +55,7 @@
     <Compile Include="ISmartDevice.cs" />
     <Compile Include="Hue\HueLight.cs" />
     <Compile Include="Lights\ISmartLight.cs" />
+    <Compile Include="Lights\LightType.cs" />
     <Compile Include="Sensors\ISmartSensor.cs" />
     <Compile Include="Lights\LightState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,6 +63,9 @@
     <Compile Include="Sensors\SensorState.cs" />
     <Compile Include="SmartHub.cs" />
     <Compile Include="Virtual\VirtualSensor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
