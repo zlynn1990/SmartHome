@@ -10,7 +10,8 @@ namespace SmartHome.Orchestration
         TimeRange,
         LightState,
         MotionDetection,
-        NoMotionDetection
+        NoMotionDetection,
+        NoExternalInput
     }
 
     public class RuleTimeRange

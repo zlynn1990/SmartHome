@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SmartHome.Lib;
 using SmartHome.Lib.Adapters;
 using SmartHome.Lib.Environment;
@@ -12,157 +15,6 @@ namespace SmartHome.Orchestration
     {
         static void Main(string[] args)
         {
-            var entryRule = new Rule
-            {
-                Id = "1",
-                Name = "Entry Lights On",
-                Conditions = new[]
-                {
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.TimeRange,
-                        TimeRange = new RuleTimeRange
-                        {
-                            Start = 0,
-                            End = 19
-                        }
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.MotionDetection,
-                        RoomId = "1"
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.LightState,
-                        RoomId = "1",
-                        LightState = LightState.LightsOff
-                    }
-                },
-                Actions = new[]
-                {
-                    new RuleAction
-                    {
-                        RoomIds = new[] {"1", "2"},
-                        LightState = LightState.LightsOn
-                    }
-                }
-            };
-
-            var laundryOn = new Rule
-            {
-                Id = "1",
-                Name = "Laundry Light On",
-                Conditions = new[]
-                {
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.MotionDetection,
-                        RoomId = "4"
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.LightState,
-                        RoomId = "4",
-                        LightState = LightState.LightsOff
-                    }
-                },
-                Actions = new[]
-                {
-                    new RuleAction
-                    {
-                        RoomIds = new[] {"4"},
-                        LightState = LightState.LightsOn
-                    }
-                }
-            };
-
-            var laundryOff = new Rule
-            {
-                Id = "1",
-                Name = "Laundry Light Off",
-                Conditions = new[]
-                {
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.NoMotionDetection,
-                        DurationInSeconds = 30,
-                        RoomId = "4"
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.LightState,
-                        LightState = LightState.LightsOn,
-                        RoomId = "4"
-                    }
-                },
-                Actions = new[]
-                {
-                    new RuleAction
-                    {
-                        RoomIds = new[] {"4"},
-                        LightState = LightState.LightsOff
-                    }
-                }
-            };
-
-            var bedroomOn = new Rule
-            {
-                Id = "1",
-                Name = "Bedroom Light On",
-                Conditions = new[]
-                {
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.MotionDetection,
-                        RoomId = "3"
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.LightState,
-                        RoomId = "3",
-                        LightState = LightState.LightsOff
-                    }
-                },
-                Actions = new[]
-                {
-                    new RuleAction
-                    {
-                        RoomIds = new[] {"3"},
-                        LightState = LightState.LightsOn
-                    }
-                }
-            };
-
-            var bedroomOff = new Rule
-            {
-                Id = "1",
-                Name = "Bedroom Light Off",
-                Conditions = new[]
-                {
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.NoMotionDetection,
-                        DurationInSeconds = 30,
-                        RoomId = "3"
-                    },
-                    new RuleCondition
-                    {
-                        Type = RuleConditionType.LightState,
-                        LightState = LightState.LightsOn,
-                        RoomId = "3"
-                    }
-                },
-                Actions = new[]
-                {
-                    new RuleAction
-                    {
-                        RoomIds = new[] {"3"},
-                        LightState = LightState.LightsOff
-                    }
-                }
-            };
-
             var smartHub = new SmartHub
             {
                 Environment = EnvironmentConfig.Load(),
@@ -176,13 +28,29 @@ namespace SmartHome.Orchestration
                 }
             };
 
-            Console.WriteLine("Initializing smarthub");
+            HomeLogger.WriteLine("Loading rules");
+
+            string path = "rules.json";
+
+            if (!File.Exists(path))
+            {
+                path = "../../../../config/rules.json";
+
+                if (!File.Exists(path))
+                {
+                    throw new Exception("Could not find rules!");
+                }
+            }
+
+            var rules = JsonConvert.DeserializeObject<Rule[]>(File.ReadAllText(path));
+
+            HomeLogger.WriteLine("Initializing smarthub");
 
             smartHub.Initialize();
 
-            Console.WriteLine("Starting rule engine loop");
+            HomeLogger.WriteLine("Starting rule engine loop");
 
-            var ruleProcessor = new RuleProcessor(new[] { entryRule, laundryOn, laundryOff, bedroomOn, bedroomOff }, smartHub);
+            var ruleProcessor = new RuleProcessor(rules, smartHub);
             ruleProcessor.Run();
 
             Console.ReadLine();

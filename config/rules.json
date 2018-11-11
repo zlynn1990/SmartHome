@@ -1,0 +1,307 @@
+[
+  {
+    "name": "Entry Lights On",
+    "conditions": [
+      {
+        "type": "MotionDetection",
+        "roomId": "1"
+      },
+      {
+        "type": "LightState",
+        "roomId": "1",
+        "lightState": {
+          "on": false,
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "1"
+        ],
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Entry Light Off",
+    "conditions": [
+      {
+        "type": "NoMotionDetection",
+        "durationInSeconds": 1200,
+        "roomId": "1"
+      },
+      {
+        "type": "LightState",
+        "roomId": "1",
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "1"
+        ],
+        "lightState": {
+          "on": false,
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Living Room Lights On",
+    "conditions": [
+      {
+        "type": "MotionDetection",
+        "roomId": "1"
+      },
+      {
+        "type": "LightState",
+        "roomId": "2",
+        "lightState": {
+          "on": false,
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "2"
+        ],
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Living Light Off",
+    "conditions": [
+      {
+        "type": "NoMotionDetection",
+        "durationInSeconds": 3600,
+        "roomId": "1"
+      },
+      {
+        "type": "LightState",
+        "roomId": "2",
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "2"
+        ],
+        "lightState": {
+          "on": false,
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Laundry Light On",
+    "conditions": [
+      {
+        "type": "MotionDetection",
+        "roomId": "4"
+      },
+      {
+        "type": "LightState",
+        "roomId": "4",
+        "lightState": {
+          "on": false,
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "4"
+        ],
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Laundry Light Off",
+    "conditions": [
+      {
+        "type": "NoMotionDetection",
+        "durationInSeconds": 120,
+        "roomId": "4"
+      },
+      {
+        "type": "LightState",
+        "roomId": "4",
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "4"
+        ],
+        "lightState": {
+          "on": false,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 0,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bedroom Light On",
+    "conditions": [
+      {
+        "type": "MotionDetection",
+        "roomId": "3"
+      },
+      {
+        "type": "LightState",
+        "roomId": "3",
+        "lightState": {
+          "on": false,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 0,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "3"
+        ],
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bedroom Light Off",
+    "conditions": [
+      {
+        "type": "NoMotionDetection",
+        "durationInSeconds": 600,
+        "roomId": "3"
+      },
+      {
+        "type": "LightState",
+        "roomId": "3",
+        "lightState": {
+          "on": true,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 255,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ],
+    "actions": [
+      {
+        "roomIds": [
+          "3"
+        ],
+        "lightState": {
+          "on": false,
+          "hue": 14948,
+          "saturation": 143,
+          "brightness": 0,
+          "xy": [
+            0.4573,
+            0.41
+          ],
+          "transitionTime": 4
+        }
+      }
+    ]
+  }
+]

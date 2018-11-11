@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,11 +25,13 @@ namespace SmartHome.LightView
 
         private int _updateDelay;
         private bool _updateRequired;
+        private bool _setNightMode;
 
         private int _refreshTimer;
         private bool _refreshUpdate;
 
         private Room[] _selectedRooms;
+        private IList<ISmartLight> _lights;
         private Dictionary<Room, LightState> _storedStates;
 
         public MainWindow()
@@ -83,7 +84,7 @@ namespace SmartHome.LightView
 
         private Dictionary<Room, LightState> GetRoomStates()
         {
-            IList<ISmartLight> lights = _smartHub.PollLights();
+            _lights = _smartHub.PollLights();
 
             var roomStates = new Dictionary<Room, LightState>();
 
@@ -91,7 +92,7 @@ namespace SmartHome.LightView
             {
                 var lightStates = new List<LightState>();
 
-                foreach (ISmartLight light in lights)
+                foreach (ISmartLight light in _lights)
                 {
                     if (room.Lights != null && room.ContainsLight(light.Id))
                     {
@@ -103,30 +104,6 @@ namespace SmartHome.LightView
             }
 
             return roomStates;
-        }
-
-        private bool RoomStatesChanged()
-        {
-            var roomStates = GetRoomStates();
-
-            foreach (Room room in _config.Rooms)
-            {
-                LightState storedState = _storedStates[room];
-                LightState currentState = roomStates[room];
-
-                // If any states are different override the stored state
-                if (storedState.On != currentState.On ||
-                    Math.Abs(storedState.Brightness - currentState.Brightness) > 5 ||
-                    Math.Abs(storedState.Hue - currentState.Hue) > 5 ||
-                    Math.Abs(storedState.Saturation - currentState.Saturation) > 5)
-                {
-                    _storedStates = roomStates;
-
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private LightState GetSelectedState()
@@ -203,27 +180,36 @@ namespace SmartHome.LightView
                         {
                             if (room.Lights != null)
                             {
-                                _smartHub.UpdateLightsInRooms(new [] { room.Id }, _storedStates[room]);
+                                if (_setNightMode)
+                                {
+                                    foreach (ISmartLight light in _lights)
+                                    {
+                                        if (room.ContainsLight(light.Id))
+                                        {
+                                            if (light.Type == LightType.Color)
+                                            {
+                                                _smartHub.UpdateLight(light.Id, _storedStates[room]);
+                                            }
+                                            else
+                                            {
+                                                _smartHub.UpdateLight(light.Id, LightState.LightsOff);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    _smartHub.UpdateLightsInRooms(new[] { room.Id }, _storedStates[room]);
+                                }
                             }
                         }
 
+                        _setNightMode = false;
                         _updateRequired = false;
                     }
 
                     _updateDelay--;
                 }
-
-                // Every second check the current state in case an outside system changed it
-                //if (_refreshTimer == 100)
-                //{
-                //    if (RoomStatesChanged())
-                //    {
-                //        _updateDelay = 0;
-                //        _updateRequired = true;
-                //    }
-
-                //    _refreshTimer = 0;
-                //}
 
                 _refreshTimer++;
 
@@ -269,6 +255,8 @@ namespace SmartHome.LightView
 
         private void OnNightMode(object sender, RoutedEventArgs e)
         {
+            _setNightMode = true;
+
             foreach (Room room in _selectedRooms)
             {
                 _storedStates[room] = new LightState

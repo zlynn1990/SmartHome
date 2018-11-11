@@ -33,8 +33,8 @@ namespace SmartHome.Lib.Hue
                 {
                     Id = hueLight.Id,
                     Name = hueLight.Name,
-                    Type = hueLight.Type,
                     LastUpdate = DateTime.UtcNow,
+                    Type = GetStyle(hueLight.Type),
                     State = new LightState
                     {
                         On = hueLight.State.On,
@@ -89,6 +89,16 @@ namespace SmartHome.Lib.Hue
                 Xy = state.Xy,
                 TransitionTime = state.TransitionTime
             };
+        }
+
+        private static LightType GetStyle(string lightType)
+        {
+            if (lightType.Contains("color"))
+            {
+                return LightType.Color;
+            }
+
+            return LightType.White;
         }
 
         internal class LightJson

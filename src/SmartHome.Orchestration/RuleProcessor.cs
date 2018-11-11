@@ -22,6 +22,7 @@ namespace SmartHome.Orchestration
         private Dictionary<string, string> _sensorRoomMap;
 
         private Dictionary<string, DateTime> _activityMap;
+        private Dictionary<string, DateTime> _externalInputMap;
 
         public RuleProcessor(Rule[] rules, SmartHub smartHub)
         {
@@ -49,10 +50,14 @@ namespace SmartHome.Orchestration
         {
             _lightRoomMap = new Dictionary<string, string>();
             _sensorRoomMap = new Dictionary<string, string>();
+
             _activityMap = new Dictionary<string, DateTime>();
+            _externalInputMap = new Dictionary<string, DateTime>();
 
             foreach (Room room in _smartHub.Environment.Rooms)
             {
+                _externalInputMap.Add(room.Id, DateTime.MinValue);
+
                 if (room.Lights != null)
                 {
                     foreach (string lightId in room.Lights)
@@ -78,19 +83,41 @@ namespace SmartHome.Orchestration
 
         private void UpdateLoop()
         {
-            Dictionary<string, ISmartSensor> previousState = GetSensorState();
+            Dictionary<string, ISmartSensor> prevSensorState = GetSensorState();
 
-            IList<ISmartLight> lights = _smartHub.PollLights();
+            IList<ISmartLight> prevLightState = _smartHub.PollLights();
+            IList<ISmartLight> currLightState = prevLightState;
 
-            Console.WriteLine("Pulled initial sensor and light states");
+            HomeLogger.WriteLine("Pulled initial sensor and light states");
 
             while (_active)
             {
-                Dictionary<string, ISmartSensor> currentState = GetSensorState();
+                Dictionary<string, ISmartSensor> currSensorState = GetSensorState();
 
-                if (_lightRefreshCounter > 15)
+                if (_lightRefreshCounter > 5)
                 {
-                    lights = _smartHub.PollLights();
+                    currLightState = _smartHub.PollLights();
+
+                    bool externalChangeDetected = false;
+
+                    for (var i = 0; i < currLightState.Count; i++)
+                    {
+                        ISmartLight currLight = currLightState[i];
+                        ISmartLight prevLight = prevLightState[i];
+
+                        // Light has changed outside of orchestration
+                        if (currLight.State.On != prevLight.State.On ||
+                            Math.Abs(currLight.State.Brightness - prevLight.State.Brightness) > 10)
+                        {
+                            _externalInputMap[_lightRoomMap[currLight.Id]] = DateTime.Now;
+                            externalChangeDetected = true;
+                        }
+                    }
+
+                    if (externalChangeDetected)
+                    {
+                        HomeLogger.WriteLine("External change detected", ConsoleColor.Yellow);
+                    }
 
                     _lightRefreshCounter = 0;
                 }
@@ -114,8 +141,8 @@ namespace SmartHome.Orchestration
                                 }
                                 break;
                             case RuleConditionType.MotionDetection:
-                                if (!previousState[condition.RoomId].DetectMotion &&
-                                    currentState[condition.RoomId].DetectMotion)
+                                if (!prevSensorState[condition.RoomId].DetectMotion &&
+                                    currSensorState[condition.RoomId].DetectMotion)
                                 {
                                     satisfiedRules++;
                                 }
@@ -129,7 +156,7 @@ namespace SmartHome.Orchestration
                                 }
                                 break;
                             case RuleConditionType.LightState:
-                                foreach (ISmartLight light in lights)
+                                foreach (ISmartLight light in currLightState)
                                 {
                                     if (_lightRoomMap[light.Id] == condition.RoomId &&
                                         light.State.On == condition.LightState.On)
@@ -139,6 +166,9 @@ namespace SmartHome.Orchestration
                                     }
                                 }
                                 break;
+                            case RuleConditionType.NoExternalInput:
+
+                                break;
                         }
                     }
 
@@ -147,7 +177,8 @@ namespace SmartHome.Orchestration
                     {
                         foreach (RuleAction ruleAction in rule.Actions)
                         {
-                            Console.WriteLine("Executing rule " + rule.Name);
+                            HomeLogger.WriteLine("Executing rule " + rule.Name,
+                                                 ruleAction.LightState.On ? ConsoleColor.Green : ConsoleColor.Red);
 
                             if (ruleAction.RoomIds != null)
                             {
@@ -159,12 +190,14 @@ namespace SmartHome.Orchestration
                         }
 
                         // Force an update to light states
-                        lights = _smartHub.PollLights();
+                        currLightState = _smartHub.PollLights();
                     }
                 }
 
                 _lightRefreshCounter++;
-                previousState = currentState;
+
+                prevSensorState = currSensorState;
+                prevLightState = currLightState;
 
                 Thread.Sleep(500);
             }
